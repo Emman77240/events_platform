@@ -158,7 +158,7 @@ cp target/eventease-1.0.0.war /opt/tomcat/webapps/
 
 Clone the repository:
 
-git clone [https://github.com/your-username/community-events-platform.git](https://github.com/Emman77240/events_platform/tree/main/frontend)
+git clone [community-events-platform github link](https://github.com/Emman77240/events_platform/tree/main/frontend)
 
 Open in Android Studio.
 
