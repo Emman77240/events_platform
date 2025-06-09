@@ -55,14 +55,14 @@ Features include:
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Backend Setup Instructions
 
 ### 1. Database Setup
 sql
 CREATE DATABASE eventease;
 
 
-### 2. Backend Configuration
+### 2. Configuration
 Update src/main/resources/application.properties with your database credentials:
 properties
 spring.datasource.url=jdbc:mysql://localhost:3306/eventease
@@ -153,16 +153,21 @@ cp target/eventease-1.0.0.war /opt/tomcat/webapps/
    - Monitor Tomcat logs
    - Check for proper resource cleanup
    - Use appropriate JVM memory settings
+  
+## ⚙️ Frontend Setup Instructions
 
-## Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Clone the repository:
+
+bash
+Copy
+Edit
+git clone https://github.com/your-username/community-events-platform.git
+Open in Android Studio.
+
+Create a Firebase project and link it with your Android app.
 
 
-📝 License
+## 📝 License
 This project is open-source and available under the MIT License.
 
 
