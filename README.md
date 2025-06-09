@@ -158,13 +158,10 @@ cp target/eventease-1.0.0.war /opt/tomcat/webapps/
 
 Clone the repository:
 
-bash
-Copy
-Edit
-git clone https://github.com/your-username/community-events-platform.git
+git clone [https://github.com/your-username/community-events-platform.git](https://github.com/Emman77240/events_platform/tree/main/frontend)
+
 Open in Android Studio.
 
-Create a Firebase project and link it with your Android app.
 
 
 ## 📝 License
