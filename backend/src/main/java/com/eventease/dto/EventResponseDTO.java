@@ -18,6 +18,7 @@ public class EventResponseDTO {
     private Boolean isPublic;
     private String imageUrl;
     private String eventDate;
+    private String imageData;
     // add other fields as needed
 }
 

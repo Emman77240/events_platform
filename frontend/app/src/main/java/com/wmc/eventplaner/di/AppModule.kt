@@ -20,7 +20,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
-    fun provideBaseUrl() = "http://localhost/api/"
+    fun provideBaseUrl() = "http://18.209.100.93:8080/api/"
     fun provideToken() = Const.authToken
 
     @Provides

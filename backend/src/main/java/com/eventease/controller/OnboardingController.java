@@ -50,7 +50,7 @@ public class OnboardingController {
     public ResponseEntity<String> login(@Valid @RequestBody UserRequest request) {
         Optional<User> userOpt = userService.findByEmail(request.getEmail());
         
-        if (userOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
+        if (!userOpt.isPresent() || !passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
             return ResponseEntity.badRequest().body("Email or password is wrong");
         }
 

@@ -1,9 +1,13 @@
 package com.wmc.eventplaner.util
 
+import android.graphics.BitmapFactory
 import android.icu.text.SimpleDateFormat
+import android.util.Base64
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,4 +60,13 @@ inline fun <reified T> T.toJsonObject(): JSONObject {
     val gson = Gson()
     val json = gson.toJson(this, T::class.java)
     return JSONObject(json)
+}
+fun decodeBase64ToImageBitmap(base64Str: String): ImageBitmap? {
+    return try {
+        val decodedBytes = Base64.decode(base64Str, Base64.DEFAULT)
+        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+        bitmap?.asImageBitmap()
+    } catch (e: Exception) {
+        null
+    }
 }

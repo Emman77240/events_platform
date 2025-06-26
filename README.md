@@ -8,6 +8,8 @@ A mobile app designed for a small community business that allows users to browse
 
 A demo can be viewed with the youtube link: https://www.youtube.com/watch?v=mGeb2r-gaQ0
 
+The hosted backend application can be accessed via the link: http://18.209.100.93:8080/api/
+
 Features include:
 
 - 🔐 Secure JWT-based authentication

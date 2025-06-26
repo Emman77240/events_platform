@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <!-- Optimize JAR scanning -->
+    <JarScanner>
+        <JarScanFilter
+            tldScan="spring-webmvc*.jar,spring-security-taglibs*.jar"
+            tldSkip="*.jar"
+            pluggabilityScan="spring-webmvc*.jar,spring-security-taglibs*.jar"
+            pluggabilitySkip="*.jar"/>
+    </JarScanner>
+    
+    <!-- Resource configuration -->
+    <Resources cachingAllowed="true" cacheMaxSize="100000" />
+    
+    <!-- Session configuration -->
+    <Manager pathname="" />
+    
+    <!-- Prevent memory leaks -->
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+    
+    <!-- MySQL specific configuration -->
+    <Parameter name="com.mysql.cj.jdbc.AbandonedConnectionCleanupThread" value="false" override="false"/>
+    
+    <!-- Environment configuration -->
+    <Environment name="spring.profiles.active" value="production" type="java.lang.String" override="false"/>
+</Context> 

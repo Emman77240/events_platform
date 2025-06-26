@@ -18,6 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -59,8 +64,9 @@ public class EventServiceImpl implements EventService {
         event.setEventDate(request.getEventDate());
 
         if (request.getImageFile() != null && !request.getImageFile().isEmpty()) {
-            String originalFilename = request.getImageFile().getOriginalFilename();
-            event.setFile(originalFilename);
+            String convertedFilename = System.currentTimeMillis() + ".jpg"; // Always use .jpg
+            event.setFile(convertedFilename);
+
             try {
                 // Ensure directory exists
                 Path dirPath = Paths.get(configuredPath);
@@ -68,17 +74,23 @@ public class EventServiceImpl implements EventService {
                     Files.createDirectories(dirPath);
                 }
 
-                // Save file
-                assert originalFilename != null;
-                Path filePath = dirPath.resolve(originalFilename);
-                Files.copy(request.getImageFile().getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                // Convert and save image as JPG
+                Path jpgFilePath = dirPath.resolve(convertedFilename);
+                File jpgFile = convertToJpg(request.getImageFile(), jpgFilePath.toString());
+
+                // Convert to Base64
+                byte[] imageBytes = Files.readAllBytes(jpgFile.toPath());
+                String base64String = Base64.getEncoder().encodeToString(imageBytes);
+                event.setImageData(base64String);
+
             } catch (IOException e) {
-                throw new RuntimeException("Failed to store file: " + originalFilename, e);
+                throw new RuntimeException("Failed to process image file: " + convertedFilename, e);
             }
         }
 
         return eventRepository.save(event);
     }
+
 
     @Override
     public EventResponseDTO getEventById(Long id) {
@@ -94,47 +106,48 @@ public class EventServiceImpl implements EventService {
                 .eventDate(event1.getEventDate())
                 .status(event1.getStatus().name())
                 .isPublic(event1.isPublic())
-                .imageUrl(ipaddress + event1.getFile())
+                .imageUrl(ipaddress + configuredPath + event1.getFile())
                 .build();
     }
 
-//    @Override
+    //    @Override
 //    public List<Event> getAllEvents() {
 //        return eventRepository.findAll();
 //    }
-     @Override
-     public List<EventResponseDTO> getAllEvents() {
-         List<Event> events = eventRepository.findAll();
+    @Override
+    public List<EventResponseDTO> getAllEvents() {
+        List<Event> events = eventRepository.findAll();
 
 
-
-         return events.stream().map(event -> EventResponseDTO.builder()
-             .id(event.getId())
-             .title(event.getTitle())
-             .description(event.getDescription())
-             .startDateTime(event.getStartTime())
-             .endDateTime(event.getEndTime())
-             .location(event.getLocation())
-             .eventDate(event.getEventDate())
-             .status(event.getStatus().name())
-             .isPublic(event.isPublic())
-             .imageUrl(ipaddress + event.getFile()) // 👈 this is the image URL
-             .build()
-     ).collect(Collectors.toList());
- }
+        return events.stream().map(event -> EventResponseDTO.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .startDateTime(event.getStartTime())
+                .endDateTime(event.getEndTime())
+                .location(event.getLocation())
+                .eventDate(event.getEventDate())
+                .status(event.getStatus().name())
+                .isPublic(event.isPublic())
+                .imageUrl(ipaddress + event.getFile())
+                .imageData(event.getImageData())
+                .build()
+        ).collect(Collectors.toList());
+    }
 
     @Override
     @Transactional
     public ResponseEntity<EventResponse> updateEvent(EventRequest request) {
         Optional<Event> eventOpt = eventRepository.findById((long) request.getId());
-//                .orElseThrow(() -> new RuntimeException("Event not found with id: " + request.getId()));
-        if(!eventOpt.isPresent()) {
+
+        if (!eventOpt.isPresent()) {
             return ResponseEntity.badRequest().body(EventResponse.builder()
                     .data(null)
                     .responseCode(Constant.FAILURE)
                     .responseMessage(Constant.EVENT_NOT_FOUND)
                     .build());
         }
+
         Event event = eventOpt.get();
         event.setTitle(request.getTitle());
         event.setDescription(request.getDescription());
@@ -145,8 +158,9 @@ public class EventServiceImpl implements EventService {
         event.setUpdatedAt(String.valueOf(LocalDateTime.now()));
 
         if (request.getImageFile() != null && !request.getImageFile().isEmpty()) {
-            String originalFilename = request.getImageFile().getOriginalFilename();
-            event.setFile(originalFilename);
+            String convertedFilename = System.currentTimeMillis() + ".jpg";
+            event.setFile(convertedFilename);
+
             try {
                 // Ensure directory exists
                 Path dirPath = Paths.get(configuredPath);
@@ -154,22 +168,29 @@ public class EventServiceImpl implements EventService {
                     Files.createDirectories(dirPath);
                 }
 
-                // Save file
-                assert originalFilename != null;
-                Path filePath = dirPath.resolve(originalFilename);
-                Files.copy(request.getImageFile().getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                // Convert image to JPG and save
+                Path jpgFilePath = dirPath.resolve(convertedFilename);
+                File jpgFile = convertToJpg(request.getImageFile(), jpgFilePath.toString());
+
+                // Convert to Base64 and store in DB
+                byte[] imageBytes = Files.readAllBytes(jpgFile.toPath());
+                String base64String = Base64.getEncoder().encodeToString(imageBytes);
+                event.setImageData(base64String);
+
             } catch (IOException e) {
-                throw new RuntimeException("Failed to store file: " + originalFilename, e);
+                throw new RuntimeException("Failed to store file: " + convertedFilename, e);
             }
         }
 
-         eventRepository.save(event);
+        eventRepository.save(event);
+
         return ResponseEntity.ok(EventResponse.builder()
                 .data(null)
                 .responseCode(Constant.SUCCESS)
                 .responseMessage(Constant.EVENT_UPDATED_SUCCESSFULLY)
                 .build());
     }
+
 
     @Override
     @Transactional
@@ -204,9 +225,6 @@ public class EventServiceImpl implements EventService {
         return eventRepository.searchPublicEvents(searchTerm, pageable);
     }
 
-    
-
-   
 
     private LocalDateTime parseFlexibleDateTime(String input) {
         if (input.length() == 10) { // Format is yyyy-MM-dd
@@ -220,4 +238,25 @@ public class EventServiceImpl implements EventService {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return dateFormat.format(new Date());
     }
+
+    private File convertToJpg(MultipartFile multipartFile, String outputPath) throws IOException {
+        BufferedImage originalImage = ImageIO.read(multipartFile.getInputStream());
+
+        // Convert with white background to remove transparency
+        BufferedImage jpgImage = new BufferedImage(
+                originalImage.getWidth(),
+                originalImage.getHeight(),
+                BufferedImage.TYPE_INT_RGB
+        );
+
+        Graphics2D g = jpgImage.createGraphics();
+        g.drawImage(originalImage, 0, 0, Color.WHITE, null);
+        g.dispose();
+
+        File outputFile = new File(outputPath);
+        ImageIO.write(jpgImage, "jpg", outputFile);
+
+        return outputFile;
+    }
+
 } 

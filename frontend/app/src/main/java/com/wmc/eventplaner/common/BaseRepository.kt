@@ -3,18 +3,28 @@ package com.wmc.eventplaner.common
 import retrofit2.HttpException
 import java.io.IOException
 
-abstract class BaseRepository {
+import com.google.gson.Gson
+import com.wmc.eventplaner.data.dto.ErrorResponse
+open class BaseRepository {
 
     suspend fun <T> safeApiCall(apiCall: suspend () -> T): Resource<T> {
         return try {
-            val response = apiCall()
-            Resource.Success(response)
+            val result = apiCall()
+            Resource.Success(result)
         } catch (e: HttpException) {
-            Resource.Error(e.message ?: "An unexpected error occurred", null)
+            val errorMessage = try {
+                val errorBody = e.response()?.errorBody()?.string()
+                val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                errorResponse.responseMessage ?: "Something went wrong!"
+            } catch (ex: Exception) {
+                "Something went wrong!"
+            }
+            Resource.Error(errorMessage)
         } catch (e: IOException) {
-            Resource.Error("Couldn't reach server. Check your internet connection.", null)
+            Resource.Error("Network error. Please check your connection.")
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Something went wrong", null)
+            Resource.Error("Unexpected error occurred.")
         }
     }
 }
+

@@ -42,4 +42,7 @@ data class Event(
 
     @SerializedName("imageUrl")
     val imageUrl: String? = null,
+    @SerializedName("imageData")
+    val image: String? = null,
+
 )

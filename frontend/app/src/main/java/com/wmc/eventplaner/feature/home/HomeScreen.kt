@@ -8,6 +8,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -90,6 +91,7 @@ import com.wmc.eventplaner.data.dto.User
 import com.wmc.eventplaner.feature.ShareViewModel
 import com.wmc.eventplaner.ui.theme.Black
 import com.wmc.eventplaner.util.CalendarEventHelper
+import com.wmc.eventplaner.util.decodeBase64ToImageBitmap
 import com.wmc.eventplaner.util.formatDateTime
 import com.wmc.eventplaner.util.rememberToast
 import java.text.ParseException
@@ -463,19 +465,41 @@ private fun EventContent(
         modifier = Modifier.padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val imageUrlWithTimestamp = "${event.imageUrl}?t=${System.currentTimeMillis()}"
+        val imageBitmap = decodeBase64ToImageBitmap(event.image?:"")
+        if (imageBitmap != null) {
+            Image(
+                bitmap = imageBitmap,
+                contentDescription = "Event image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+            )
+        } else {
+            Image(
+                painter = painterResource(R.drawable.error_image),
+                contentDescription = "Error image",
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+            )
+        }
 
-        AsyncImage(
-            model = imageUrlWithTimestamp,
-            contentDescription = "Event image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(96.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surface),
-            placeholder = painterResource(R.drawable.placeholder_image),
-            error = painterResource(R.drawable.error_image)
-        )
+//        val imageUrlWithTimestamp = "${event.image}?t=${System.currentTimeMillis()}"
+//
+//        AsyncImage(
+//            model = imageUrlWithTimestamp,
+//            contentDescription = "Event image",
+//            contentScale = ContentScale.Crop,
+//            modifier = Modifier
+//                .size(96.dp)
+//                .clip(RoundedCornerShape(12.dp))
+//                .background(MaterialTheme.colorScheme.surface),
+//            placeholder = painterResource(R.drawable.placeholder_image),
+//            error = painterResource(R.drawable.error_image)
+//        )
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(

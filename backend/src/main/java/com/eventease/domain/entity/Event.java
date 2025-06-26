@@ -42,8 +42,8 @@ public class Event {
     @Column(name = "event_date", nullable = false)
     private String eventDate;
     @Lob
-    @Column(name = "image_data", columnDefinition = "LONGBLOB")
-    private byte[] imageData;
+    @Column(name = "image_data", columnDefinition = "LONGTEXT")
+    private String imageData;
 
     @ManyToMany
     @JoinTable(
